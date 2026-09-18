@@ -1,0 +1,28 @@
+name: V16 Public UI Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v16-ui-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V16 UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v16.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '16.0'
+          curl -fsSL "$B/api/order-cancel-reasons" | grep -q 'DUPLICATE_ORDER'
+          curl -fsSL "$B/mypage.html" > /tmp/a
+          grep -q '취소 사유' /tmp/a
+          grep -q '반품 사유' /tmp/a
+          grep -q '교환 사유' /tmp/a
+          curl -fsSL "$B/guest-order.html" > /tmp/b
+          grep -q '숫자 4자리' /tmp/b
+          grep -q '반품 사유' /tmp/b
+          grep -q '교환 사유' /tmp/b
+          curl -fsSL "$B/checkout.html" | grep -q 'ensureGuestPinFields'
+          curl -fsSL "$B/return-request.html" | grep -q 'requestedReason'
+          echo V16-UI-OK
