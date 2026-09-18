@@ -1,0 +1,22 @@
+name: V17 Admin Cancel UI Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v17-admin-cancel-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V17 admin cancel UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v17.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '17.0'
+          curl -fsSL "$B/admin.html" > /tmp/admin.html
+          grep -q '취소 승인 · 결제금액 전액 환불' /tmp/admin.html
+          grep -q '취소 거절' /tmp/admin.html
+          grep -q 'cancel-action-' /tmp/admin.html
+          grep -q '전액 환불 처리합니다' /tmp/admin.html
+          echo V17-ADMIN-CANCEL-UI-OK
