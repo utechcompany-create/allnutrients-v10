@@ -1,0 +1,19 @@
+name: V17 Admin UI Diagnostic
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v17-admin-diag.yml' ]
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose
+        shell: bash
+        run: |
+          B=https://allnutrients-v17.onrender.com
+          curl -LsS "$B/admin.html" > /tmp/admin.html
+          echo bytes=$(wc -c </tmp/admin.html)
+          for s in '취소 승인 · 결제금액 전액 환불' '취소 거절' 'cancel-action-' '전액 환불 처리합니다' '올영양소 운영 관리자'; do
+            if grep -q "$s" /tmp/admin.html; then echo "FOUND:$s"; else echo "MISS:$s"; fi
+          done
+          grep -o '취소[^<]*' /tmp/admin.html | head -20 || true
