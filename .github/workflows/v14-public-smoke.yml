@@ -1,0 +1,39 @@
+name: V14 Shipping Smoke Test
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v14-public-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate V14 shipping features
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v14.onrender.com"
+          curl -fsSL "$BASE/api/health" >/tmp/health.json
+          python -c 'import json; d=json.load(open("/tmp/health.json")); assert d["version"]=="14.0", d'
+          curl -fsSL "$BASE/api/config" >/tmp/config.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/config.json'))['commerce']
+          assert int(d['jejuExtraFee'])==3000, d
+          assert int(d['remoteExtraFee'])==4000, d
+          assert 'remoteAreaKeywords' in d, d
+          PY
+          curl -fsSL "$BASE/api/products/P1001" >/tmp/product.json
+          python -c 'import json; d=json.load(open("/tmp/product.json")); assert "bundleAllowed" in d and "returnFee" in d and "exchangeFee" in d, d'
+          curl -fsSL "$BASE/checkout.html" >/tmp/checkout.html
+          grep -q '제주/도서산간 추가비용' /tmp/checkout.html
+          grep -q 'shippingNotice' /tmp/checkout.html
+          grep -q 'deliveryRegion' /tmp/checkout.html
+          grep -q '합포장 불가 상품' /tmp/checkout.html
+          curl -fsSL "$BASE/assets/admin-v11.js" >/tmp/admin.js
+          grep -q '합포장 여부' /tmp/admin.js
+          grep -q '제주 추가배송비' /tmp/admin.js
+          grep -q '도서산간 추가배송비' /tmp/admin.js
+          grep -q 'remoteAreaKeywords' /tmp/admin.js
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q '합포장'
+          echo 'V14 public shipping smoke passed'
