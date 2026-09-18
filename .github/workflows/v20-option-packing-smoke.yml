@@ -1,0 +1,28 @@
+name: V20 Option Packing Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v20-option-packing-smoke.yml' ]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V20 option packing UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v20.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '20.0'
+          curl -fsSL "$B/assets/admin-v11.js" > /tmp/admin.js
+          grep -q '1박스 합포장 가능 수량' /tmp/admin.js
+          grep -q 'opt-bundle' /tmp/admin.js
+          grep -q 'opt-capacity' /tmp/admin.js
+          grep -q 'bundleCapacity' /tmp/admin.js
+          curl -fsSL "$B/checkout.html" > /tmp/checkout
+          grep -q 'bundleLoad' /tmp/checkout
+          grep -q 'bundledPackages' /tmp/checkout
+          grep -q '옵션별 합포장 기준 예상 배송 패키지' /tmp/checkout
+          curl -fsSL "$B/detail.html?id=P1001" > /tmp/detail
+          grep -q 'optionPacking' /tmp/detail
+          grep -q '1박스 최대' /tmp/detail
+          echo V20-OPTION-PACKING-OK
