@@ -1,0 +1,35 @@
+name: V12 Public Smoke Test
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v12-public-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate V12 public endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v12.onrender.com"
+          echo 'health:'
+          curl -fsSL "$BASE/api/health" | tee /tmp/health.json
+          python -c 'import json; d=json.load(open("/tmp/health.json")); assert d["version"]=="12.0"'
+          echo 'product API shipping fields:'
+          curl -fsSL "$BASE/api/products/P1001" >/tmp/product.json
+          python -c 'import json; d=json.load(open("/tmp/product.json")); assert "shippingType" in d and "shippingFee" in d'
+          echo 'checkout reward notice:'
+          curl -fsSL "$BASE/checkout.html" >/tmp/checkout.html
+          grep -q '예상 적립 포인트' /tmp/checkout.html
+          grep -q '0.5%' /tmp/checkout.html
+          grep -q '1.5%' /tmp/checkout.html
+          grep -q '실제 결제된 상품금액' /tmp/checkout.html
+          echo 'admin product shipping controls:'
+          curl -fsSL "$BASE/assets/admin-v11.js" >/tmp/admin.js
+          grep -q '상품 배송비 설정' /tmp/admin.js
+          grep -q '개별 배송비' /tmp/admin.js
+          grep -q 'shippingType' /tmp/admin.js
+          echo 'detail shipping display:'
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q '배송비'
+          echo 'V12 public smoke passed'
