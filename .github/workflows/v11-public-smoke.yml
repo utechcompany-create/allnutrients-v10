@@ -17,7 +17,7 @@ jobs:
           curl -fsSL "$BASE/api/config" | python -c 'import json,sys; d=json.load(sys.stdin); assert "commerce" in d; assert "shippingFee" in d["commerce"]; assert "freeShippingThreshold" in d["commerce"]'
           curl -fsSL "$BASE/api/categories" | python -c 'import json,sys; d=json.load(sys.stdin); assert isinstance(d,list) and len(d)>=1'
           curl -fsSL "$BASE/admin.html" | grep -q "admin-v11.js"
-          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q "즉시구매"
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q "즉시 구매"
           curl -fsSL "$BASE/detail.html?id=P1001" | grep -q "장바구니로 이동"
           curl -fsSL "$BASE/checkout.html" | grep -q "우편번호 검색"
           curl -fsSL "$BASE/checkout.html" | grep -q "postcode.v2.js"
