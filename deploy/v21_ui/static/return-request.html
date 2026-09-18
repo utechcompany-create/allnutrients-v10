@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>반품·교환 | 올영양소</title>
+  <link rel="stylesheet" href="assets/online.css">
+  <style>
+    [hidden]{display:none!important}
+    .item-row{display:grid;grid-template-columns:1fr 110px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+    .req{border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0;overflow-wrap:anywhere}
+    .photos{display:flex;gap:8px;flex-wrap:wrap}.photos img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+    fieldset{border:0;padding:0;margin:0;min-width:0}fieldset:disabled{opacity:.65}button:disabled{cursor:not-allowed}
+    .request-notice{margin:0 0 16px}.req .row{flex-wrap:wrap}.req p{white-space:pre-wrap}
+    #historyBox,#requestBox{scroll-margin-top:90px}#pageError{margin-bottom:16px}
+    @media(max-width:650px){.item-row{grid-template-columns:1fr}.order-summary{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="logo" href="index.html">올영양소</a><div class="actions"><a class="btn ghost" href="mypage.html">마이페이지</a><a class="btn ghost" href="guest-order.html">비회원 주문조회</a><a class="btn ghost" href="index.html">쇼핑몰</a></div></div></header>
+<main><div class="wrap" style="max-width:960px">
+  <h1 class="page-title">반품·교환 신청</h1>
+  <p class="sub">주문을 확인한 후 반품/환불 또는 교환을 선택해 신청하세요. 기존 신청과 완료 내역도 함께 확인할 수 있습니다.</p>
+  <div class="notice" id="pageError" role="alert" hidden><span id="pageErrorText"></span> <button class="btn ghost small" id="retryPage" type="button">다시 불러오기</button></div>
+  <section class="card" id="memberOrders" hidden>
+    <h2>신청할 주문 선택</h2>
+    <label>내 주문<select id="orderSelect"><option value="">주문을 선택해 주세요</option></select></label>
+    <p class="muted" id="orderSelectHelp">반품·교환할 주문을 선택하면 상품과 신청 가능 수량이 표시됩니다.</p>
+    <a class="btn ghost small" href="return-request.html?guest=1">비회원으로 구매한 주문 확인</a>
+  </section>
+  <section class="card" id="guestAuth" hidden>
+    <h2>주문 확인</h2>
+    <p>회원 주문은 <a class="btn ghost small" id="memberLoginLink" href="login.html?next=return-request.html">회원 로그인</a> 후 선택할 수 있습니다.</p>
+    <h3>비회원 주문 확인</h3>
+    <form id="guestForm" class="grid2">
+      <label>주문번호<input name="orderNo" required autocomplete="off"></label>
+      <label>이메일<input type="email" name="email" required></label>
+      <label>연락처<input name="phone" required></label>
+      <label>주문 PIN<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>
+      <div class="full"><button class="btn primary" id="guestLookupButton">주문 확인</button> <a class="btn ghost" href="guest-order.html">주문번호 없이 조회</a></div>
+    </form>
+  </section>
+  <section class="card" id="orderBox" hidden></section>
+  <section class="card" id="requestBox">
+    <h2>새 반품·교환 신청</h2>
+    <p class="notice request-notice" id="requestNotice" role="status">주문을 선택하거나 비회원 주문을 확인하면 신청할 수 있습니다.</p>
+    <form id="requestForm"><fieldset id="requestFields" class="grid2" disabled>
+      <legend class="muted full">반품·교환 신청 정보</legend>
+      <label>신청 유형<select name="requestType" id="requestType"><option value="RETURN">반품/환불</option><option value="EXCHANGE">교환</option></select></label>
+      <label>신청 사유<select name="reasonCode" id="reasonCode" required><option value="">사유 선택</option></select></label>
+      <div class="full notice" id="feeNotice">사유와 상품을 선택하면 예상 배송비가 표시됩니다.</div>
+      <div class="full" id="itemChoices"><p class="muted">주문 확인 후 신청할 상품과 수량을 선택해 주세요.</p></div>
+      <label class="full">상세 사유<textarea name="reasonDetail" maxlength="1000" placeholder="상품 상태와 사유를 구체적으로 적어주세요."></textarea></label>
+      <label class="full">추가 요청사항<textarea name="customerNote" maxlength="500" placeholder="회수 가능 시간 등 전달할 내용이 있으면 적어주세요."></textarea></label>
+      <label class="full">사진 첨부 (최대 5장, 각 5MB)<input type="file" id="attachments" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <div class="full notice" id="cashRefund" hidden><b>현금 결제 환불계좌</b><div class="grid3" style="margin-top:10px"><label>은행<input name="refundBankName"></label><label>계좌번호<input name="refundBankAccount"></label><label>예금주<input name="refundBankHolder"></label></div></div>
+      <div class="full"><button class="btn primary" id="submitRequest" style="width:100%">신청 등록</button></div>
+    </fieldset></form>
+  </section>
+  <section class="card" id="historyBox" hidden><h2>신청 / 완료 내역</h2><div id="requestHistoryList"></div></section>
+</div></main>
+<div class="toast" id="toast" role="status"></div>
+<script src="assets/api.js"></script><script src="assets/return-request.js"></script>
+</body></html>

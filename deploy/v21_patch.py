@@ -94,3 +94,19 @@ Path('V20_TO_V21_UPGRADE.md').write_text('''# V20 → V21
 - 부분 반품이면서 반품 물량이 계산상 1박스인 경우 설정 반품배송비의 50%만 차감합니다.
 - 옵션별 합포장 가능 수량을 반품 박스 계산에도 적용합니다.
 ''')
+
+# Apply the reviewed customer UI after all legacy source overlays and patches.
+# These files only change customer pages; the refund policy and database stay intact.
+from shutil import copyfile
+ui_source = Path(__file__).resolve().parent / 'v21_ui'
+for relative in (
+    'static/mypage.html',
+    'static/return-request.html',
+    'static/assets/mypage-returns.js',
+    'static/assets/mypage-returns.css',
+    'static/assets/return-request.js',
+):
+    destination = Path(relative)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    copyfile(ui_source / relative, destination)
+print('V21 customer return/exchange forms and refund history applied')
