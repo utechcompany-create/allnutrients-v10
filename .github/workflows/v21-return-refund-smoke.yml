@@ -1,0 +1,23 @@
+name: V21 Return Refund Policy Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v21-return-refund-smoke.yml' ]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V21 return refund policy UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v21.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '21.0'
+          curl -fsSL "$B/return-request.html" > /tmp/rr
+          grep -q '설정 반품비의 50%' /tmp/rr
+          grep -q '반품 대상 상품금액 <b>전액 환불</b>' /tmp/rr
+          grep -q 'data-capacity' /tmp/rr
+          curl -fsSL "$B/mypage.html" | grep -q '전액 환불'
+          curl -fsSL "$B/guest-order.html" | grep -q '전액 환불'
+          curl -fsSL "$B/assets/admin-v11.js" | grep -q '부분반품은 반품 박스 기준 50% 차감'
+          echo V21-RETURN-REFUND-OK
