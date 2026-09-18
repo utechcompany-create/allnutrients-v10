@@ -1,0 +1,22 @@
+name: V19 Return Activation Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v19-return-activation-smoke.yml' ]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V19 public return activation markers
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v19.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '19.0'
+          curl -fsSL "$B/mypage.html" > /tmp/my
+          grep -q 'o.shipment.trackingNumber' /tmp/my
+          grep -q '송장번호가 등록되거나 배송이 시작되면' /tmp/my
+          curl -fsSL "$B/guest-order.html" > /tmp/guest
+          grep -q 'o.shipment.trackingNumber' /tmp/guest
+          grep -q '송장번호가 등록되거나 배송이 시작되면' /tmp/guest
+          echo V19-RETURN-ACTIVATION-OK
