@@ -1,0 +1,29 @@
+name: V11 Diagnostic
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v11-diagnostic.yml' ]
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose V11
+        shell: bash
+        run: |
+          BASE="https://allnutrients-v11.onrender.com"
+          echo '--- health ---'; curl -fsSL "$BASE/api/health"; echo
+          echo '--- config ---'; curl -fsSL "$BASE/api/config"; echo
+          echo '--- categories ---'; curl -fsSL "$BASE/api/categories"; echo
+          for spec in \
+            'admin.html|admin-v11.js' \
+            'detail.html?id=P1001|즉시구매' \
+            'detail.html?id=P1001|장바구니로 이동' \
+            'checkout.html|우편번호 검색' \
+            'checkout.html|postcode.v2.js' \
+            'mypage.html|포인트' \
+            'mypage.html|쿠폰'; do
+            path="${spec%%|*}"; needle="${spec#*|}"
+            code="$(curl -LsS -o /tmp/body -w '%{http_code}' "$BASE/$path")"
+            if grep -q "$needle" /tmp/body; then found=yes; else found=no; fi
+            echo "$path [$needle] status=$code found=$found bytes=$(wc -c </tmp/body)"
+          done
