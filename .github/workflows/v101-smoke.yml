@@ -1,0 +1,26 @@
+name: V10.1 Feature Smoke Test
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'deploy/overlay/**'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V10.1 public endpoints and UI markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://allnutrients-v10-options.onrender.com'
+          curl -fsSL "$BASE/api/health" | tee /tmp/health | grep -q '"version":"10.1"'
+          curl -fsSL "$BASE/api/categories" | tee /tmp/categories | grep -q '\['
+          curl -fsSL "$BASE/api/products" | grep -q '"options"'
+          curl -fsSL "$BASE/admin.html" | grep -q '카테고리'
+          curl -fsSL "$BASE/admin.html" | grep -q '옵션 추가'
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q '즉시 구매'
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q '장바구니로 이동'
+          curl -fsSL "$BASE/checkout.html" | grep -q 'postcode.v2.js'
+          curl -fsSL "$BASE/checkout.html" | grep -q '우편번호'
+          echo 'V10.1 feature smoke checks passed.'
