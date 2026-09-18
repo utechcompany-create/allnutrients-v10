@@ -1,0 +1,47 @@
+name: V15 Guest PIN Cancel Smoke Test
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v15-public-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate V15 public UI and guest flow
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v15.onrender.com"
+          curl -fsSL "$BASE/api/health" >/tmp/health.json
+          python -c 'import json; d=json.load(open("/tmp/health.json")); assert d["version"]=="15.0", d'
+          curl -fsSL "$BASE/guest-order.html" >/tmp/guest.html
+          ! grep -q 'name="orderNo"' /tmp/guest.html
+          grep -q '숫자 4자리' /tmp/guest.html
+          grep -q '/api/orders/guest-search' /tmp/guest.html
+          grep -q '주문취소 신청' /tmp/guest.html
+          curl -fsSL "$BASE/mypage.html" >/tmp/my.html
+          grep -q '주문취소' /tmp/my.html
+          grep -q '>반품<' /tmp/my.html
+          grep -q '>교환<' /tmp/my.html
+          curl -fsSL "$BASE/checkout.html" >/tmp/checkout.html
+          grep -q 'name="guestPin"' /tmp/checkout.html
+          grep -q '주문 PIN 확인' /tmp/checkout.html
+          curl -fsSL "$BASE/admin.html" >/tmp/admin.html
+          grep -q 'PIN 재설정' /tmp/admin.html
+          grep -q '설정됨 \*\*\*\*' /tmp/admin.html
+          grep -q '취소 승인' /tmp/admin.html
+          curl -fsSL "$BASE/return-request.html" | grep -q '주문 PIN'
+          TS="$(date +%s)"
+          EMAIL="v15-smoke-$TS@example.invalid"
+          PHONE="01012340000"
+          PIN="2468"
+          curl -fsSL -H 'content-type: application/json' -d "{\"items\":[{\"productId\":\"P1001\",\"qty\":1}],\"paymentMethod\":\"CASH\",\"customerName\":\"V15 SMOKE\",\"customerEmail\":\"$EMAIL\",\"customerPhone\":\"$PHONE\",\"postcode\":\"06236\",\"address1\":\"서울특별시 강남구\",\"address2\":\"\",\"deliveryMemo\":\"\",\"cashDepositor\":\"V15 SMOKE\",\"couponId\":\"\",\"pointsToUse\":0,\"guestPin\":\"$PIN\"}" "$BASE/api/orders" >/tmp/order.json
+          ORDERNO="$(python -c 'import json; print(json.load(open("/tmp/order.json"))["orderNo"])')"
+          curl -fsSL -H 'content-type: application/json' -d "{\"email\":\"$EMAIL\",\"phone\":\"$PHONE\",\"pin\":\"$PIN\"}" "$BASE/api/orders/guest-search" >/tmp/search.json
+          python -c 'import json,os; d=json.load(open("/tmp/search.json")); assert len(d)>=1 and d[0]["guestPinSet"] is True'
+          CODE="$(curl -sS -o /tmp/wrong.json -w '%{http_code}' -H 'content-type: application/json' -d "{\"email\":\"$EMAIL\",\"phone\":\"$PHONE\",\"pin\":\"9999\"}" "$BASE/api/orders/guest-search")"
+          test "$CODE" = "404"
+          curl -fsSL -H 'content-type: application/json' -d "{\"orderNo\":\"$ORDERNO\",\"email\":\"$EMAIL\",\"phone\":\"$PHONE\",\"pin\":\"$PIN\",\"reason\":\"V15 smoke cancellation\"}" "$BASE/api/orders/guest-cancel-request" >/tmp/cancel.json
+          python -c 'import json; d=json.load(open("/tmp/cancel.json")); assert d["cancelRequest"]["status"]=="REQUESTED"'
+          echo "V15 public guest PIN/cancel smoke passed: $ORDERNO"
