@@ -1,0 +1,51 @@
+name: V10 Render Smoke Test
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Render deploy
+        run: sleep 25
+      - name: Check public pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v10-full.onrender.com"
+          check () {
+            path="$1"
+            expected="${2:-200}"
+            code="$(curl -L -sS -o /tmp/body -w '%{http_code}' "$BASE$path")"
+            echo "$path -> $code"
+            if [ "$code" != "$expected" ]; then
+              echo "Unexpected status for $path"
+              head -c 1000 /tmp/body || true
+              exit 1
+            fi
+          }
+          check "/api/health"
+          check "/"
+          check "/admin-login.html"
+          check "/detail.html?id=P1001"
+          check "/checkout.html"
+          check "/guest-order.html"
+          check "/return-request.html"
+          check "/returns-admin.html"
+          check "/naver-admin.html"
+          check "/naver/ep.txt"
+      - name: Validate response markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v10-full.onrender.com"
+          curl -fsSL "$BASE/" | grep -q "올영양소"
+          curl -fsSL "$BASE/detail.html?id=P1001" | grep -q "상품"
+          curl -fsSL "$BASE/checkout.html" | grep -q "주문"
+          curl -fsSL "$BASE/return-request.html" | grep -q "반품"
+          curl -fsSL "$BASE/returns-admin.html" | grep -q "반품"
+          curl -fsSL "$BASE/naver-admin.html" | grep -q "네이버"
+          curl -fsSL "$BASE/naver/ep.txt" | head -1 | grep -q $'id\ttitle\tprice_pc'
+          echo "All V10 public smoke checks passed."
