@@ -1,0 +1,20 @@
+name: V21 Return Fee Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v21-return-fee-smoke.yml' ]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V21 return fee UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v21-live.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '21.0'
+          curl -fsSL "$B/return-request.html" > /tmp/return
+          grep -q '부분반품 1박스 기준으로 설정 반품비의 50%' /tmp/return
+          grep -q '반품배송비 차감 없이 선택 상품금액을' /tmp/return
+          grep -q 'data-capacity' /tmp/return
+          echo V21-RETURN-FEE-OK
