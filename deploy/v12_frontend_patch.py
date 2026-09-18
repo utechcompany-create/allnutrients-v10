@@ -1,0 +1,23 @@
+from pathlib import Path
+
+def rep(path, old, new):
+    p=Path(path);s=p.read_text()
+    if old not in s: raise SystemExit(f'patch target missing: {path}: {old[:60]!r}')
+    p.write_text(s.replace(old,new,1))
+
+rep('static/assets/admin-v11.js',"const descLabel=productForm.elements.description.closest('label');",'''const descLabel=productForm.elements.description.closest('label');
+const shipWrap=document.createElement('div');shipWrap.className='full';shipWrap.innerHTML=`<div style="font-weight:800;margin-bottom:8px">상품 배송비 설정</div><div class="grid2"><label>배송비 유형<select name="shippingType" id="productShippingType"><option value="DEFAULT">기본 배송비 적용</option><option value="FREE">무료배송</option><option value="FIXED">개별 배송비</option></select></label><label>개별 배송비<input type="number" name="shippingFee" id="productShippingFee" min="0" value="0"><span class="muted">개별 배송비 선택 시 적용됩니다.</span></label></div>`;productForm.insertBefore(shipWrap,descLabel);
+function syncProductShipping(){productShippingFee.disabled=productShippingType.value!=='FIXED';if(productShippingType.value!=='FIXED')productShippingFee.value='0'}
+productShippingType.onchange=syncProductShipping;''')
+rep('static/assets/admin-v11.js',"(p?.options||[]).forEach(addOptionRow)};","(p?.options||[]).forEach(addOptionRow);productShippingType.value=p?.shippingType||'DEFAULT';productShippingFee.value=Number(p?.shippingFee||0);syncProductShipping()};")
+rep('static/assets/admin-v11.js','options:optionsPayload()};','options:optionsPayload(),shippingType:f.get(\'shippingType\')||\'DEFAULT\',shippingFee:Number(f.get(\'shippingFee\')||0)};')
+
+rep('static/checkout.html','<div class="summary-row"><span>포인트</span><b id="pointDiscount">-0원</b></div><div class="summary-row total">','<div class="summary-row"><span>포인트</span><b id="pointDiscount">-0원</b></div><div class="summary-row"><span>예상 적립 포인트</span><b id="rewardPreview">0P</b></div><div class="summary-row total">')
+rep('static/checkout.html','<button class="btn primary" id="payBtn" style="width:100%;margin-top:15px">주문하고 결제하기</button>','<div class="notice" id="rewardNotice" style="margin-top:14px">회원 결제 완료 시 카드·네이버페이·카카오페이 0.5%, 현금/무통장 1.5%가 자동 적립됩니다. 배송비를 제외하고 쿠폰·포인트 사용 후 실제 결제된 상품금액 기준이며 1P 미만은 절사됩니다.</div><button class="btn primary" id="payBtn" style="width:100%;margin-top:15px">주문하고 결제하기</button>')
+rep('static/checkout.html','''function recalc(){const rows=cartRows();calc.subtotal=rows.reduce((a,x)=>a+x.price*x.q,0);const cfg=config?.commerce||{shippingFee:3000,freeShippingThreshold:50000};calc.shipping=calc.subtotal>=Number(cfg.freeShippingThreshold||0)?0:Number(cfg.shippingFee||0);''','''function shippingAmount(rows,subtotal){const cfg=config?.commerce||{shippingFee:3000,freeShippingThreshold:50000},seen=new Set();let fixed=0,hasDefault=false;for(const x of rows){if(seen.has(x.productId))continue;seen.add(x.productId);const kind=x.p.shippingType||'DEFAULT';if(kind==='FIXED')fixed+=Number(x.p.shippingFee||0);else if(kind==='DEFAULT')hasDefault=true}const base=hasDefault&&subtotal<Number(cfg.freeShippingThreshold||0)?Number(cfg.shippingFee||0):0;return Math.max(0,fixed+base)}
+function rewardRate(){return method==='CASH'?0.015:['CARD','NAVERPAY','KAKAOPAY'].includes(method)?0.005:0}
+function recalc(){const rows=cartRows();calc.subtotal=rows.reduce((a,x)=>a+x.price*x.q,0);calc.shipping=shippingAmount(rows,calc.subtotal);''')
+rep('static/checkout.html',"pointDiscount.textContent='-'+money(calc.point);total.textContent=money(calc.total)}","pointDiscount.textContent='-'+money(calc.point);const rewardBase=Math.max(0,calc.total-calc.shipping),reward=me?.authenticated?Math.floor(rewardBase*rewardRate()):0;rewardPreview.textContent=reward.toLocaleString()+'P';total.textContent=money(calc.total);rewardNotice.innerHTML=me?.authenticated?`결제 완료 시 <b>${method==='CASH'?'현금/무통장 1.5%':'카드·간편결제 0.5%'}</b> 자동 적립 · 예상 <b>${reward.toLocaleString()}P</b><br><span class=\"muted\">배송비 제외, 쿠폰·포인트 사용 후 실제 결제 상품금액 기준 · 1P 미만 절사</span>`:'포인트는 회원 주문에만 적립됩니다. 로그인 후 주문하면 카드·간편결제 0.5%, 현금/무통장 1.5%가 자동 적립됩니다.'}")
+rep('static/checkout.html',"cashName.hidden=method!=='CASH';bankInfo.hidden=method!=='CASH'});","cashName.hidden=method!=='CASH';bankInfo.hidden=method!=='CASH';recalc()});")
+
+rep('static/detail.html','<div class="meta-row"><span>재고</span><b>${Number(p.stock||0).toLocaleString()}개</b></div></div>','<div class="meta-row"><span>재고</span><b>${Number(p.stock||0).toLocaleString()}개</b></div><div class="meta-row"><span>배송비</span><b>${p.shippingType===\'FREE\'?\'무료배송\':p.shippingType===\'FIXED\'?money(p.shippingFee||0):\'기본 배송비 적용\'}</b></div></div>')
