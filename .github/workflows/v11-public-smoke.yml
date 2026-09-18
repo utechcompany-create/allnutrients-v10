@@ -43,7 +43,7 @@ jobs:
           assert any(c.get('discountType')=='PERCENT' and int(c.get('value',0))==10 for c in d), d
           PY
           curl -fsSL -c "$JAR" -b "$JAR" "$BASE/api/points/me" | python -c 'import json,sys; d=json.load(sys.stdin); assert d["balance"]==0'
-          CSRF="$(awk '$6==\"allnutrients_csrf\"{print $7}' "$JAR" | tail -1)"
+          CSRF="$(grep 'allnutrients_csrf' "$JAR" | tail -1 | cut -f7)"
           NEWPASS="$PASS-X"
           curl -fsSL -c "$JAR" -b "$JAR" -H 'content-type: application/json' -H "x-csrf-token: $CSRF" \
             -d "{\"currentPassword\":\"$PASS\",\"newPassword\":\"$NEWPASS\"}" \
