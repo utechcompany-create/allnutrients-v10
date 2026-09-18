@@ -1,0 +1,24 @@
+name: V18 Return UI Smoke
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v18-return-ui-smoke.yml' ]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check V18 return UI
+        shell: bash
+        run: |
+          set -e
+          B=https://allnutrients-v18-live.onrender.com
+          curl -fsSL "$B/api/health" | grep -q '18.0'
+          curl -fsSL "$B/mypage.html" > /tmp/my
+          grep -q '반품 신청' /tmp/my
+          grep -q '반품 사유' /tmp/my
+          grep -q '배송 시작 후 결제완료 주문에서 신청할 수 있습니다' /tmp/my
+          curl -fsSL "$B/guest-order.html" > /tmp/guest
+          grep -q '반품 신청' /tmp/guest
+          grep -q '반품 사유' /tmp/guest
+          grep -q '배송 시작 후 결제완료 주문에서 신청할 수 있습니다' /tmp/guest
+          echo V18-RETURN-UI-OK
