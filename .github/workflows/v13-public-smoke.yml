@@ -1,0 +1,35 @@
+name: V13 Return Policy Smoke Test
+on:
+  workflow_dispatch:
+  push:
+    paths: [ '.github/workflows/v13-public-smoke.yml' ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate V13 public policy features
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://allnutrients-v13-live.onrender.com"
+          curl -fsSL "$BASE/api/health" >/tmp/health.json
+          python -c 'import json; d=json.load(open("/tmp/health.json")); assert d["version"]=="13.0", d'
+          curl -fsSL "$BASE/api/return-reasons?requestType=RETURN" >/tmp/reasons.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/reasons.json'))
+          by={x['code']:x for x in d}
+          assert by['CHANGE_MIND']['responsibility']=='CUSTOMER', by
+          assert by['DEFECT']['responsibility']=='SELLER', by
+          PY
+          curl -fsSL "$BASE/api/products/P1001" >/tmp/product.json
+          python -c 'import json; d=json.load(open("/tmp/product.json")); assert "returnFee" in d and "exchangeFee" in d, d'
+          curl -fsSL "$BASE/return-request.html" >/tmp/return.html
+          grep -q '예상 배송비' /tmp/return.html
+          grep -q '/api/return-reasons' /tmp/return.html
+          curl -fsSL "$BASE/returns-admin.html" | grep -q '귀책 사유 정책'
+          curl -fsSL "$BASE/assets/admin-v11.js" >/tmp/admin.js
+          grep -q '반품 배송비' /tmp/admin.js
+          grep -q '교환 배송비' /tmp/admin.js
+          echo 'V13 public return/exchange policy smoke passed'
