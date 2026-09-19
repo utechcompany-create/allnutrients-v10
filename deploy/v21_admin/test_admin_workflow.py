@@ -145,5 +145,5 @@ for page in ('/admin.html', '/returns-admin.html'):
     html = admin.get(page).text
     for key in ('orders', 'returns', 'exchanges', 'cancellations'):
         assert 'data-work-count="'+key+'"' in html
-    assert 'assets/admin-workflow.js' in html
+    assert 'assets/admin-events.js' in html or 'assets/admin-workflow.js' in html
 print('PASS: receipt-time manual/card refunds, timestamp, concurrent idempotency, rollback, zero/legacy refunds, exchange flow, authorization, and live work counts')

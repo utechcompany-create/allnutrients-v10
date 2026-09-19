@@ -80,8 +80,8 @@ function chatContext({admin=true,role='admin'}={}){
  }
  const denied=chatContext({admin:true,role:'customer'});await denied.chat.open('DIRECT');assert.ok(!denied.calls.some(x=>x.path.startsWith('/api/admin/')));denied.chat.close();
  const admin=fs.readFileSync('static/admin.html','utf8');
- assert.match(admin,/id="chatMenuToggle"[^>]*>실시간 대화방/);
- assert.match(admin,/data-chat-kind="GROUP"[^>]*>전체 대화방/);assert.match(admin,/data-chat-kind="DIRECT"[^>]*>1:1 대화방/);
+ assert.match(admin,/id="chatMenuToggle"[^>]*>(?:<span>)?실시간 대화방/);
+ assert.match(admin,/data-chat-kind="GROUP"[^>]*>(?:<span>)?전체 대화방/);assert.match(admin,/data-chat-kind="DIRECT"[^>]*>(?:<span>)?1:1 대화방/);
  assert.match(admin,/data-view="sales">매출 관리/);assert.match(admin,/주문일 기준\(한국시간\)/);
  for(const page of ['mypage.html','board.html'])assert.match(fs.readFileSync('static/'+page,'utf8'),/href="chat.html">실시간 대화방/);
  console.log('PASS: separate member/admin presentation, administrator storefront regression, own-room requests, messaging, live delivery, session revocation and navigation');
