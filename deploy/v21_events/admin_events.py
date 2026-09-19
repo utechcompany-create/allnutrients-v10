@@ -78,7 +78,7 @@ def thread_metadata(db, admin_id, kind):
 def counts(db, request, admin):
     from .admin_workflow import admin_work_counts
     result = admin_work_counts(request, db)
-    totals = dict(groupChat=0, directChat=0, inquiry=0, board=0)
+    totals = dict(groupChat=0, directChat=0, inquiry=0, board=0, reviews=0)
     rooms = {}
     for kind, target, number in db.execute(unread_query(admin.id)):
         totals[kind] += number
@@ -99,7 +99,7 @@ def event_counts(request: Request, response: Response, db: Session = Depends(get
 
 
 class ReadItem(BaseModel):
-    kind: Literal['groupChat', 'directChat', 'inquiry', 'board']
+    kind: Literal['groupChat', 'directChat', 'inquiry', 'board', 'reviews']
     target: str = Field(min_length=1, max_length=80)
     through: int = Field(ge=1)
 
@@ -120,6 +120,9 @@ def read_events(data: ReadIn, request: Request, response: Response, db: Session 
     for item in data.items:
         maximum = db.scalar(select(func.max(AdminEvent.position)).where(
             AdminEvent.kind == item.kind, AdminEvent.target == item.target))
+        if not maximum and item.kind == 'reviews':
+            # The customer may delete a review while its confirmation is in flight.
+            continue
         if not maximum or item.through > maximum:
             raise HTTPException(400, '확인한 이벤트의 위치가 올바르지 않습니다.')
         key = (admin.id, item.kind, item.target)

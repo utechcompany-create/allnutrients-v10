@@ -1,7 +1,7 @@
 (function(){
   'use strict';
-  const keys=['orders','returns','exchanges','cancellations','groupChat','directChat','inquiry','board'];
-  const labels={orders:'미발송 주문',returns:'처리 중 반품',exchanges:'처리 중 교환',cancellations:'취소 승인 대기',returnTotal:'처리 중 반품·교환',groupChat:'미확인 전체 대화',directChat:'미확인 1:1 대화',liveChat:'미확인 대화',inquiry:'미확인 상품 문의',board:'미확인 게시글',communications:'미확인 고객소통'};
+  const keys=['orders','returns','exchanges','cancellations','groupChat','directChat','inquiry','board','reviews'];
+  const labels={orders:'미발송 주문',returns:'처리 중 반품',exchanges:'처리 중 교환',cancellations:'취소 승인 대기',returnTotal:'처리 중 반품·교환',groupChat:'미확인 전체 대화',directChat:'미확인 1:1 대화',liveChat:'미확인 대화',inquiry:'미확인 상품 문의',board:'미확인 게시글',communications:'미확인 고객소통',reviews:'미확인 구매 리뷰'};
   let adminId=null,last=null,lastTime=0,roomUnread={},polling=false,reading=false,epoch=0,wanted=true,audio=null,activating=false,observer=null,readTimer=null;
   const pending=new Map(),seen=new Map(),viewTimers=new Map();
   const keyOf=item=>item.kind+':'+item.target;
@@ -89,6 +89,6 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden){viewTimers.forEach(clearTimeout);viewTimers.clear()}else{refresh();watchThreads()}});
   window.addEventListener('storage',e=>{if(e.key===prefKey()){wanted=getStored(prefKey())!==false;soundLabel()}if(e.key==='admin-event-read-signal')refresh()});
   let ticks=0;
-  setInterval(()=>{refresh();if(!document.hidden&&++ticks%2===0&&document.getElementById('communications')?.classList.contains('active'))window.reloadCommunications?.()},5000);
+  setInterval(()=>{refresh();if(!document.hidden&&++ticks%2===0&&document.getElementById('communications')?.classList.contains('active'))window.reloadCommunications?.();if(!document.hidden&&document.getElementById('reviews')?.classList.contains('active'))window.reloadAdminReviews?.()},5000);
   refresh();
 })();

@@ -3,7 +3,7 @@ const source=fs.readFileSync('static/assets/admin-events.js','utf8');
 const settle=async()=>{for(let n=0;n<60;n++)await Promise.resolve()};
 const shared=new Map(),locks={tail:Promise.resolve(),request(name,fn){const next=this.tail.then(fn);this.tail=next.catch(()=>{});return next}};
 let serverTime=Date.parse('2026-09-19T06:00:00Z');
-const base={adminId:'admin-a',orders:2,returns:0,exchanges:0,cancellations:0,groupChat:0,directChat:0,inquiry:0,board:0,roomUnread:{}};
+const base={adminId:'admin-a',orders:2,returns:0,exchanges:0,cancellations:0,groupChat:0,directChat:0,inquiry:0,board:0,reviews:0,roomUnread:{}};
 function fixture(){
   const dom=new JSDOM(fs.readFileSync('static/admin.html','utf8'),{url:'https://shop.example.test/admin.html',runScripts:'outside-only',pretendToBeVisual:true});
   const w=dom.window,doc=w.document,timers=new Map(),intervals=[],calls=[],observers=[];let serial=0,notes=0,data={...base},fail=false,hold=null;
