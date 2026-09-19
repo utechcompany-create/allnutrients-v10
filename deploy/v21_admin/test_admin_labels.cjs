@@ -1,0 +1,25 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+process.chdir(__dirname);
+const window={};vm.runInNewContext(fs.readFileSync('static/assets/admin-labels.js','utf8'),{window});
+const labels=window.AdminLabels;
+const page=fs.readFileSync('static/admin.html','utf8');
+const source=page.slice(page.indexOf('function renderOrders()'),page.indexOf('async function setOrderStatus'));
+const scope={value:'all'},list={innerHTML:''},calls=[];
+const order={orderNo:'O-KO',createdAt:'2026-09-19',customerName:'고객',totalAmount:10000,paymentMethod:'KAKAOPAY',paymentStatus:'PARTIAL_REFUNDED',orderStatus:'PARTIAL_RETURN',shipment:{carrier:'CJ',trackingNumber:'LOCAL-ONLY',status:'SHIPPED'},items:[],cancelRequest:{status:'REJECTED'}};
+const els={orderScope:scope,'carrier-O-KO':{value:'CJ'},'track-O-KO':{value:'LOCAL-ONLY'},'ship-O-KO':{value:'DELIVERED'}};
+const ctx=vm.createContext({AdminLabels:labels,orders:[order],orderList:list,document:{getElementById:id=>els[id]},esc:s=>String(s??'').replace(/"/g,'&quot;'),money:n=>n+'원',api:async(path,options)=>{calls.push({path,options})},loadAll:async()=>{},toast(){}});
+vm.runInContext(source,ctx);ctx.renderOrders();
+for(const text of ['부분 환불 완료','부분 반품','카카오페이','배송 중','취소 거절'])assert.ok(list.innerHTML.includes(text),text);
+assert.match(list.innerHTML,/<option value="PARTIAL_RETURN" selected disabled>부분 반품<\/option>/);
+assert.match(list.innerHTML,/<option value="SHIPPED" selected >배송 중<\/option>/);
+for(const [method,text] of Object.entries({CARD:'신용·체크카드',CASH:'무통장입금',NAVERPAY:'네이버페이',KAKAOPAY:'카카오페이',VIRTUAL_ACCOUNT:'가상계좌'}))assert.equal(labels.paymentMethod(method),text);
+for(const s of ['ORDERED','PAID','PREPARING','SHIPPED','DELIVERED','CANCELED','RETURNED','PARTIAL_RETURN','EXCHANGE_IN_PROGRESS','EXCHANGED'])assert.notEqual(labels.orderStatus(s),s);
+for(const s of ['PENDING','AWAITING_DEPOSIT','WAITING_FOR_DEPOSIT','PAID','CANCELED','PARTIAL_CANCELED','REFUND_PENDING','REFUNDED','PARTIAL_REFUNDED','EXPIRED','ABORTED'])assert.notEqual(labels.paymentStatus(s),s);
+for(const s of ['PREPARING','SHIPPED','DELIVERED','RETURNED'])assert.notEqual(labels.shippingStatus(s),s);
+(async()=>{
+  vm.runInContext(page.slice(page.indexOf('async function setOrderStatus'),page.indexOf('async function cashPaid')),ctx);
+  vm.runInContext(page.slice(page.indexOf('async function saveShipment'),page.indexOf('function renderUsers')),ctx);
+  await ctx.setOrderStatus('O-KO','PREPARING');await ctx.saveShipment('O-KO');
+  assert.equal(calls[0].options.body.status,'PREPARING');assert.equal(calls[1].options.body.status,'DELIVERED');
+  console.log('PASS: Korean payment/order/shipping/method labels, special current states, and unchanged status-update API values');
+})().catch(e=>{console.error(e);process.exitCode=1});

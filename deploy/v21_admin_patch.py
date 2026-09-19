@@ -12,7 +12,7 @@ def replace(path, old, new):
 
 
 source = Path(__file__).resolve().parent / 'v21_admin'
-for relative in ('app/admin_workflow.py', 'static/assets/admin-workflow.js', 'static/assets/admin-workflow.css'):
+for relative in ('app/admin_workflow.py', 'static/assets/admin-workflow.js', 'static/assets/admin-workflow.css', 'static/assets/admin-labels.js'):
     destination = Path(relative)
     destination.parent.mkdir(parents=True, exist_ok=True)
     copyfile(source / relative, destination)
@@ -98,4 +98,10 @@ for page in ('static/admin.html', path):
     replace(page, '</head>', '<link rel="stylesheet" href="assets/admin-workflow.css"></head>')
     replace(page, '</body>', '<script src="assets/admin-workflow.js"></script></body>')
 
-print('V21 receipt-time refunds and administrator counters applied')
+replace('static/admin.html', '<script src="assets/api.js"></script>', '<script src="assets/api.js"></script><script src="assets/admin-labels.js"></script>')
+replace('static/admin.html', '${esc(o.paymentStatus)}', '${esc(AdminLabels.paymentStatus(o.paymentStatus))}')
+replace('static/admin.html', '${esc(o.paymentMethod)}', '${esc(AdminLabels.paymentMethod(o.paymentMethod))}')
+replace('static/admin.html', '${esc(o.cancelRequest.status)}', '${esc(AdminLabels.cancellationStatus(o.cancelRequest.status))}')
+replace('static/admin.html', "['ORDERED','PAID','PREPARING','SHIPPED','DELIVERED','CANCELED'].map(s=>`<option ${s===o.orderStatus?'selected':''}>${s}</option>`)", "AdminLabels.orderOptions(o.orderStatus).map(s=>`<option value=\"${esc(s)}\" ${s===o.orderStatus?'selected':''} ${AdminLabels.editableOrder(s)?'':'disabled'}>${esc(AdminLabels.orderStatus(s))}</option>`)")
+replace('static/admin.html', "['PREPARING','SHIPPED','DELIVERED','RETURNED'].map(s=>`<option ${s===o.shipment?.status?'selected':''}>${s}</option>`)", "AdminLabels.shippingOptions(o.shipment?.status).map(s=>`<option value=\"${esc(s)}\" ${s===o.shipment?.status?'selected':''} ${AdminLabels.editableShipping(s)?'':'disabled'}>${esc(AdminLabels.shippingStatus(s))}</option>`)")
+print('V21 receipt-time refunds, administrator counters and Korean order labels applied')

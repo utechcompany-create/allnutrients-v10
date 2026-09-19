@@ -1,0 +1,7 @@
+.privacy-option { display: flex !important; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #f5f8f4; cursor: pointer; }
+.privacy-option input { width: 18px; height: 18px; min-width: 18px; margin: 3px 0 0; accent-color: #247943; }
+.privacy-option small { display: block; margin-top: 4px; color: var(--muted); font-weight: 400; line-height: 1.5; }
+.privacy-badge { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #edf3ed; color: #34583b; font-size: 12px; }
+.privacy-locked { padding: 14px; color: var(--muted); background: #f6f7f6; border-radius: 10px; }
+.privacy-content, .privacy-message p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.privacy-message { background: #eef6ef; border-radius: 12px; padding: 12px; margin: 7px 0; }

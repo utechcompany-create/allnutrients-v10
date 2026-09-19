@@ -113,3 +113,4 @@ print('V21 customer return/exchange forms and refund history applied')
 
 import runpy
 runpy.run_path(str(Path(__file__).resolve().parent / 'v21_admin_patch.py'))
+runpy.run_path(str(Path(__file__).resolve().parent / 'v21_private_patch.py'))

@@ -40,7 +40,8 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
   const order={orderNo:'O1',createdAt:'2026-09-19',customerName:'고객',customerEmail:'',customerPhone:'',totalAmount:10000,paymentMethod:'CARD',paymentStatus:'PAID',orderStatus:'PAID',items:[]};
   const orders=[order,{...order,orderNo:'O2',cancelRequest:{status:'REQUESTED',reason:'단순변심'}},{...order,orderNo:'O3',orderStatus:'SHIPPED',shipment:{trackingNumber:'TRACK',status:'SHIPPED'}},{...order,orderNo:'O4',paymentStatus:'CANCELED',orderStatus:'CANCELED'}];
   const scope={value:'cancel'},list={innerHTML:''};
-  const filtered=vm.createContext({orders,orderList:list,document:{getElementById:id=>{assert.equal(id,'orderScope');return scope}},esc,money:n=>n+'원'});
+  const labelsWindow={};vm.runInNewContext(fs.readFileSync('static/assets/admin-labels.js','utf8'),{window:labelsWindow});
+  const filtered=vm.createContext({orders,orderList:list,document:{getElementById:id=>{assert.equal(id,'orderScope');return scope}},esc,money:n=>n+'원',AdminLabels:labelsWindow.AdminLabels});
   vm.runInContext(render,filtered);filtered.renderOrders();assert.match(list.innerHTML,/O2/);assert.doesNotMatch(list.innerHTML,/O1|O3|O4/);
   scope.value='pending';filtered.renderOrders();assert.match(list.innerHTML,/O1/);assert.doesNotMatch(list.innerHTML,/O2|O3|O4/);
   scope.value='all';filtered.renderOrders();for(const no of ['O1','O2','O3','O4'])assert.ok(list.innerHTML.includes(no));
