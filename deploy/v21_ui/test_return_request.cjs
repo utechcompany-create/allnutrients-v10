@@ -4,7 +4,7 @@ process.chdir(__dirname);
 const script=fs.readFileSync('static/assets/return-request.js','utf8');
 const page=fs.readFileSync('static/return-request.html','utf8');
 const sample={orderNo:'O1',paymentStatus:'PAID',orderStatus:'PREPARING',paymentMethod:'CARD',shipment:{trackingNumber:'LOCAL-TRACK',status:'PREPARING'},createdAt:'2026-09-18T01:00:00',totalAmount:40000,items:[{orderItemId:1,name:'주스 <img onerror=1>',qty:4,price:10000,lineTotal:40000,returnFee:4000,exchangeFee:5000,bundleAllowed:true,bundleCapacity:2}]};
-const completed={requestNo:'R-DONE',requestType:'RETURN',status:'REFUNDED',refundStatus:'COMPLETED',refundAmount:40000,returnShippingFee:0,items:sample.items,completedAt:'2026-09-18T01:00:00',attachments:[]};
+const completed={requestNo:'R-DONE',requestType:'RETURN',status:'REFUNDED',refundStatus:'COMPLETED',refundAmount:40000,returnShippingFee:0,items:sample.items,completedAt:'2026-09-18T01:00:00',receivedAt:'2026-09-18T01:00:00',attachments:[]};
 const clone=value=>JSON.parse(JSON.stringify(value));
 async function settle(){for(let i=0;i<20;i++)await Promise.resolve();}
 function make({search='',authenticated=true,record=sample,history=[],failHistory=false}={}){
@@ -31,6 +31,7 @@ function make({search='',authenticated=true,record=sample,history=[],failHistory
     throw Error('Unexpected endpoint '+path);
   };
   const context=vm.createContext({AppAPI:{api,esc:s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money:n=>Number(n||0).toLocaleString('ko-KR')+'원'},document:{getElementById:element,querySelectorAll:s=>s==='.pick:checked'?picks.filter(p=>p.checked):s==='.pick'?picks:s==='.qty'?quantities:[],querySelector:s=>quantities.find(x=>x.dataset.id===s.match(/data-id="([^"]+)"/)[1])},window:{history:{replaceState(){}}},location:url,URL,URLSearchParams,sessionStorage:{getItem(){return '';}},setTimeout(){},FormData:class{constructor(){this.values=new Map([...controls].filter(([,v])=>!v.disabled).map(([k,v])=>[k,v.value]));}get(name){return this.values.get(name)||null;}},console});
+vm.runInContext(fs.readFileSync('static/assets/return-progress.js','utf8'),context);context.ReturnProgress=context.window.ReturnProgress;
   vm.runInContext(script,context);
   return {element,control,guestControl,calls,picks,quantities,setHistoryFailure:v=>errors=v};
 }

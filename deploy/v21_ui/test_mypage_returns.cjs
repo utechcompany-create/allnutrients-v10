@@ -17,9 +17,10 @@ context.AppAPI = context.window.AppAPI;
 let response = [];
 let fail = false;
 context.AppAPI.api = async () => {if(fail)throw Error('offline');return response;};
+vm.runInContext(fs.readFileSync('static/assets/return-progress.js','utf8'),context);context.ReturnProgress=context.window.ReturnProgress;
 vm.runInContext(fs.readFileSync('static/assets/mypage-returns.js','utf8'), context);
 const history = element('returnHistory');
-const base = {requestType:'RETURN', status:'REFUNDED', requestNo:'R001', orderNo:'O001', refundStatus:'MANUAL_COMPLETED', itemAmount:20000, returnShippingFee:2000, refundAmount:18000, reasonCode:'CHANGE_MIND', reasonName:'단순 변심', createdAt:'2026-09-18T01:00:00', completedAt:'2026-09-18T03:00:00', items:[{name:'코코넛워터 2개입',qty:2,lineTotal:20000}], reasonDetail:'<img src=x onerror=alert(1)>', adminNote:'<script>alert(1)</script>'};
+const base = {requestType:'RETURN', status:'REFUNDED', requestNo:'R001', orderNo:'O001', refundStatus:'MANUAL_COMPLETED', itemAmount:20000, returnShippingFee:2000, refundAmount:18000, reasonCode:'CHANGE_MIND', reasonName:'단순 변심', createdAt:'2026-09-18T01:00:00', completedAt:'2026-09-18T03:00:00', receivedAt:'2026-09-18T02:00:00', items:[{name:'코코넛워터 2개입',qty:2,lineTotal:20000}], reasonDetail:'<img src=x onerror=alert(1)>', adminNote:'<script>alert(1)</script>'};
 function filter(value){const button=buttons.find(b=>b.dataset.returnFilter===value);element('returnFilters').handlers.click({target:{closest:()=>button}});}
 (async()=>{
   response = [base, {...base,requestNo:'R002',status:'REQUESTED',refundStatus:'PENDING_REVIEW',refundAmount:16000,completedAt:null}, {...base,requestNo:'E001',requestType:'EXCHANGE',status:'COMPLETED',refundAmount:999999}, {...base,requestNo:'R003',status:'REJECTED',refundStatus:'NOT_REQUESTED'}];
@@ -40,6 +41,27 @@ function filter(value){const button=buttons.find(b=>b.dataset.returnFilter===val
   await element('refreshReturns').handlers.click();
   assert.match(element('returnSummary').textContent,/20,000원/);
   assert.match(history.innerHTML,/AUTO/);
+  // A refund flag alone, or a terminal status without receipt, cannot close a return.
+  for(const mismatch of [
+    {...base,status:'APPROVED',receivedAt:null},
+    {...base,status:'COLLECTING',receivedAt:null,refundStatus:'COMPLETED'},
+    {...base,receivedAt:null},
+    {...base,status:'RECEIVED',refundStatus:'MANUAL_PENDING'},
+    {...base,status:'APPROVED'},
+    {...base,receiptConfirmed:false},
+    {...base,refundCompleted:false},
+    {...base,status:'REJECTED'},
+    {...base,status:'CANCELED'},
+  ]){
+    response=[mismatch];filter('all');await context.window.MyPageReturns.load();
+    assert.match(element('returnSummary').textContent,/반품 완료 0건 · 환불 완료 합계 0원/);
+    assert.doesNotMatch(history.innerHTML,/환불 완료 금액|반품·환불 완료|판매자가 환불 처리를 완료/);
+    filter('completed');assert.match(history.innerHTML,/완료된 반품 내역이 없습니다/);
+  }
+  response=[{...base,receivedAt:null,refundStatus:'COMPLETED',status:'COLLECTING'}];filter('active');await context.window.MyPageReturns.load();
+  assert.match(history.innerHTML,/입고 확인 전/);assert.match(history.innerHTML,/환불 예정 금액/);
+  response=[base];filter('completed');await context.window.MyPageReturns.load();assert.match(history.innerHTML,/환불 완료 금액/);
+  filter('all');
   fail=true; await context.window.MyPageReturns.load();
   assert.equal(element('returnError').hidden,false);
   assert.equal(element('refreshReturns').disabled,false);

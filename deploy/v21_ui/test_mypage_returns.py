@@ -11,6 +11,8 @@ def finish_return(record, automatic=False):
     no = record['requestNo']
     approved = admin.post(f'/api/admin/returns/{no}/review', headers=AH, json={'approved': True})
     assert approved.status_code == 200, approved.text
+    assert approved.json()['receiptConfirmed'] is False
+    assert approved.json()['refundCompleted'] is False
     if automatic:
         with m.SessionLocal() as db:
             order = db.scalar(select(Order).where(Order.order_no == record['orderNo']))
@@ -27,6 +29,7 @@ def finish_return(record, automatic=False):
         assert result.status_code == 200, result.text
         assert result.json()['refundStatus'] == 'MANUAL_COMPLETED'
     assert result.json()['completedAt']
+    assert result.json()['receiptConfirmed'] is True and result.json()['refundCompleted'] is True
     assert result.json()['completedAt'] == result.json()['receivedAt']
     assert result.json()['status'] == 'REFUNDED'
     return result.json()
