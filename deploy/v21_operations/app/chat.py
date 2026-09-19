@@ -93,12 +93,12 @@ def read_messages(db, room_id, after, before=0):
 
 
 @router.get('/api/chat/rooms')
-def rooms(request: Request, response: Response, db: Session = Depends(get_db)):
+def rooms(request: Request, response: Response, mine: bool = False, db: Session = Depends(get_db)):
     viewer = current_user(request,db,True)
     response.headers['Cache-Control'] = 'private, no-store'
     ensure_room(db,'all','GROUP')
     stmt = select(ChatRoom)
-    if viewer.role != 'admin':
+    if mine or viewer.role != 'admin':
         stmt = stmt.where((ChatRoom.kind == 'GROUP') | (ChatRoom.customer_id == viewer.id))
     rows = db.scalars(stmt.order_by(ChatRoom.created_at.desc())).all()
     out = []
@@ -115,11 +115,13 @@ def rooms(request: Request, response: Response, db: Session = Depends(get_db)):
 def direct_room(data: DirectIn, request: Request, db: Session = Depends(get_db)):
     require_csrf(request,db)
     viewer = current_user(request,db,True)
-    customer_id = data.customerId if viewer.role == 'admin' else viewer.id
+    # An empty target always means the signed-in user's own consultation, even
+    # when an administrator visits the storefront as a shopper.
+    customer_id = (data.customerId or viewer.id) if viewer.role == 'admin' else viewer.id
     if viewer.role != 'admin' and data.customerId and data.customerId != viewer.id:
         raise HTTPException(403,'본인의 1:1 상담방만 만들 수 있습니다.')
     customer = db.get(User,customer_id)
-    if not customer or not customer.is_active or customer.role == 'admin':
+    if not customer or not customer.is_active or (customer.role == 'admin' and customer.id != viewer.id):
         raise HTTPException(400,'상담할 고객을 선택해 주세요.')
     room = ensure_room(db,'direct_'+customer_id,'DIRECT',customer_id)
     return room_dict(db,room,viewer)

@@ -99,6 +99,25 @@ assert len(owner.get(path+'/messages?after='+str(sent.json()['id'])).json()['mes
 assert owner.get(path+'/messages?after=-1').status_code==400
 assert owner.get(path+'/messages?after=1&before=2').status_code==400
 assert owner.get(path+'/messages').headers['cache-control']=='private, no-store'
+# The storefront asks for own rooms even for an administrator session. An empty
+# direct-room target creates that account's own room, never another customer's.
+admin_id=admin.get('/api/auth/me').json()['id']
+self_room=admin.post('/api/chat/rooms/direct',headers=headers(admin),json={})
+assert self_room.status_code==200,self_room.text
+assert self_room.json()['id']=='direct_'+admin_id and self_room.json()['id']!=room
+assert admin.post('/api/chat/rooms/direct',headers=headers(admin),json={}).json()['id']==self_room.json()['id']
+mine=admin.get('/api/chat/rooms?mine=true')
+assert mine.headers['cache-control']=='private, no-store'
+assert {r['id'] for r in mine.json()}=={'all',self_room.json()['id']}
+assert 'PRIVATE' not in mine.text and room not in {r['id'] for r in mine.json()}
+assert room in {r['id'] for r in admin.get('/api/chat/rooms').json()}
+for query in ('?mine=true','?mine=false',''):
+    assert {r['id'] for r in owner.get('/api/chat/rooms'+query).json()}=={'all',room}
+assert owner.post('/api/chat/rooms/direct',headers=headers(owner),json={'customerId':admin_id}).status_code==403
+for client in (owner,other):
+    for suffix in ('/messages','/events'):
+        assert client.get('/api/chat/rooms/'+self_room.json()['id']+suffix).status_code==404
+assert anonymous.get('/api/chat/rooms?mine=true').status_code==401
 with SessionLocal() as db:
     db.add_all([chat.ChatMessage(room_id='all',sender_id=uid,sender_name='고객',sender_role='customer',body='PUBLIC '+str(i),client_id='bulk-'+str(i)) for i in range(61)])
     db.commit()
@@ -133,4 +152,4 @@ async def verify_stream():
 asyncio.run(verify_stream())
 assert owner.get(path+'/messages').status_code==401
 assert chat.stream_update(StreamRequest(),room,0) is None
-print('PASS: private room ACL, CSRF, author identity, idempotent sends, history pagination, live SSE delivery and revoked sessions')
+print('PASS: member/admin own-room scope, private room ACL, CSRF, author identity, idempotent sends, history, live SSE and revoked sessions')

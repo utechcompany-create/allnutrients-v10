@@ -4,7 +4,7 @@ from shutil import copyfile
 
 source = Path(__file__).resolve().parent / 'v21_operations'
 for relative in ('app/sales.py','app/chat.py','static/chat.html','static/assets/chat.js',
-                 'static/assets/admin-operations.js','static/assets/operations.css','static/assets/store-chat-entry.css'):
+                 'static/assets/admin-operations.js','static/assets/operations.css','static/assets/store-chat-entry.css','static/assets/member-chat.js'):
     destination = Path(relative)
     destination.parent.mkdir(parents=True,exist_ok=True)
     copyfile(source / relative,destination)
@@ -20,8 +20,8 @@ replace('app/main.py','app.include_router(communications.router)',
 replace('static/admin.html','<button data-view="members">',
         '<button data-view="sales">매출 관리</button><button type="button" id="chatMenuToggle" aria-expanded="true" aria-controls="chatSubnav">실시간 대화방 ▾</button><div id="chatSubnav" class="chat-subnav"><button data-view="liveChat" data-chat-kind="GROUP" data-label="실시간 대화방 · 전체">전체 대화방</button><button data-view="liveChat" data-chat-kind="DIRECT" data-label="실시간 대화방 · 1:1">1:1 대화방</button></div><button data-view="members">')
 replace('static/admin.html','</main></div>',(source/'admin-sections.html').read_text()+'\n</main></div>')
-replace('static/admin.html','</head>','<link rel="stylesheet" href="assets/operations.css"></head>')
-replace('static/admin.html','</body>','<script src="assets/chat.js"></script><script src="assets/admin-operations.js"></script></body>')
+replace('static/admin.html','</head>','<link rel="stylesheet" href="assets/operations.css?v=21-member-1"></head>')
+replace('static/admin.html','</body>','<script src="assets/chat.js?v=21-member-1"></script><script src="assets/admin-operations.js"></script></body>')
 for page in ('static/mypage.html','static/board.html'):
     replace(page,'<a class="btn ghost" href="index.html">쇼핑몰</a>',
             '<a class="btn ghost" href="index.html">쇼핑몰</a><a class="btn ghost" href="chat.html">실시간 대화방</a>')
