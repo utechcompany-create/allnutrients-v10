@@ -11,27 +11,23 @@ def finish_return(record, automatic=False):
     no = record['requestNo']
     approved = admin.post(f'/api/admin/returns/{no}/review', headers=AH, json={'approved': True})
     assert approved.status_code == 200, approved.text
-    received = admin.post(f'/api/admin/returns/{no}/receive', headers=AH)
-    assert received.status_code == 200, received.text
     if automatic:
         with m.SessionLocal() as db:
             order = db.scalar(select(Order).where(Order.order_no == record['orderNo']))
             order.payment_method = 'CARD'
             order.payment_key = 'local-test-payment'
             db.commit()
-        with patch('app.returns.payments.cancel', return_value={'cancels': [{'transactionKey': 'local-test-refund'}]}) as cancel:
-            result = admin.post(f'/api/admin/returns/{no}/refund', headers=AH, json={})
+        with patch('app.returns.payments.cancel', return_value={'status': 'PARTIAL_CANCELED', 'cancels': [{'transactionKey': 'local-test-refund', 'cancelStatus': 'DONE'}]}) as cancel:
+            result = admin.post(f'/api/admin/returns/{no}/receive', headers=AH)
             cancel.assert_called_once()
         assert result.status_code == 200, result.text
         assert result.json()['refundStatus'] == 'COMPLETED'
     else:
-        pending = admin.post(f'/api/admin/returns/{no}/refund', headers=AH, json={})
-        assert pending.status_code == 200, pending.text
-        assert pending.json()['refundStatus'] == 'MANUAL_PENDING'
-        result = admin.post(f'/api/admin/returns/{no}/manual-refund-complete', headers=AH, json={'transactionNote': 'local test only'})
+        result = admin.post(f'/api/admin/returns/{no}/receive', headers=AH, json={'manualRefundConfirmed': True})
         assert result.status_code == 200, result.text
         assert result.json()['refundStatus'] == 'MANUAL_COMPLETED'
     assert result.json()['completedAt']
+    assert result.json()['completedAt'] == result.json()['receivedAt']
     assert result.json()['status'] == 'REFUNDED'
     return result.json()
 

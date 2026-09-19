@@ -110,3 +110,6 @@ for relative in (
     destination.parent.mkdir(parents=True, exist_ok=True)
     copyfile(ui_source / relative, destination)
 print('V21 customer return/exchange forms and refund history applied')
+
+import runpy
+runpy.run_path(str(Path(__file__).resolve().parent / 'v21_admin_patch.py'))
