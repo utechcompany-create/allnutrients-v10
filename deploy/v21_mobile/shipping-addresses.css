@@ -1,0 +1,6 @@
+.shipping-address-book{padding:16px;background:#f3f8f3;border:1px solid #d8e6d9;border-radius:14px;margin-bottom:18px}
+.shipping-address-book .row{flex-wrap:wrap;margin-bottom:14px}.shipping-address-book h3{font-size:16px;margin:0}.shipping-address-book .actions{flex-wrap:wrap;margin-top:10px}
+.shipping-address-error{color:#a12b2b;font-size:13px;line-height:1.6;overflow-wrap:anywhere;margin:10px 0 0}.shipping-address-error:empty{display:none}
+.save-shipping-option{display:flex;align-items:flex-start;gap:10px;padding:14px;border:1px solid #d8e6d9;border-radius:12px;background:#f3f8f3;line-height:1.6;margin-top:14px}
+.save-shipping-option input{width:20px;height:20px;margin:2px 0 0;flex-shrink:0;accent-color:#2f7d4e}.save-shipping-option small{display:block;font-weight:400;color:#627167;font-size:12px}
+@media(max-width:760px){.shipping-address-book{padding:14px 12px}.shipping-address-book select{width:100%}.save-shipping-option{font-size:13px}}

@@ -1,0 +1,8 @@
+<div id="shippingAddressBook" class="shipping-address-book" hidden>
+  <div class="row"><h3>저장된 배송지</h3><button type="button" class="btn ghost small" id="reloadShippingAddresses">새로고침</button></div>
+  <label>배송지 선택<select id="shippingAddressSelect" disabled><option value="">배송지를 불러오는 중입니다.</option></select></label>
+  <p class="muted" id="shippingAddressStatus" role="status"></p>
+  <div class="actions"><button type="button" class="btn ghost small" id="newShippingAddress">새 배송지 입력</button><button type="button" class="btn danger small" id="deleteShippingAddress" disabled>선택한 배송지 삭제</button></div>
+  <div id="shippingDeleteConfirm" class="notice" hidden>선택한 배송지를 주소록에서 삭제할까요? 기존 주문의 배송정보는 유지됩니다.<div class="actions"><button type="button" class="btn danger small" id="confirmShippingDelete">삭제</button><button type="button" class="btn ghost small" id="cancelShippingDelete">취소</button></div></div>
+  <p class="shipping-address-error" id="shippingAddressError" role="alert"></p>
+</div>

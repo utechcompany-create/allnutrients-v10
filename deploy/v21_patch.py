@@ -115,3 +115,4 @@ import runpy
 runpy.run_path(str(Path(__file__).resolve().parent / 'v21_admin_patch.py'))
 runpy.run_path(str(Path(__file__).resolve().parent / 'v21_private_patch.py'))
 runpy.run_path(str(Path(__file__).resolve().parent / 'v21_operations_patch.py'))
+runpy.run_path(str(Path(__file__).resolve().parent / 'v21_mobile_patch.py'))

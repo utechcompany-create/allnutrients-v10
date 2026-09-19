@@ -1,0 +1,167 @@
+/* Customer pages only. Desktop commerce and all administrator pages keep their layout. */
+[hidden]{display:none!important}
+.mobile-bottom-nav,.mobile-menu,.mobile-pay-total{display:none}
+.purchase-actions{display:contents}
+.mobile-menu::backdrop{background:#14291fcc;backdrop-filter:blur(3px)}
+.mobile-bottom-nav svg,.mobile-menu svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom-nav a,.mobile-bottom-nav button{font:inherit;text-decoration:none}
+.drawer:not(.open){visibility:hidden}
+@media(max-width:760px){
+  html{scroll-padding-top:120px;scroll-padding-bottom:160px}
+  body[data-shop-page]{--mobile-nav-height:64px;--mobile-safe:env(safe-area-inset-bottom,0px);padding-bottom:calc(var(--mobile-nav-height) + var(--mobile-safe));-webkit-text-size-adjust:100%}
+  body[data-shop-page] .wrap,body[data-shop-page] .container{width:calc(100% - 32px);min-width:0}
+  body[data-shop-page] main{padding-top:24px;padding-bottom:32px}
+  body[data-shop-page] img{max-width:100%}
+  body[data-shop-page] :is(input,select,textarea){min-width:0;max-width:100%;font-size:16px}
+  body[data-shop-page] :is(input:not([type=checkbox]):not([type=radio]),select){min-height:46px;width:100%}
+  body[data-shop-page] :is(input[type=checkbox],input[type=radio]){width:22px;height:22px;flex-shrink:0}
+  body[data-shop-page] :is(button,.btn,.chip,.tab){min-height:44px;touch-action:manipulation}
+  body[data-shop-page] :is(.grid2,.grid3,.benefit-grid,.checkout-grid){grid-template-columns:minmax(0,1fr)}
+  body[data-shop-page] :is(.grid2,.grid3,.checkout-grid)>*,body[data-shop-page] label{min-width:0}
+  body[data-shop-page] .full{grid-column:1/-1}
+  body[data-shop-page] :is(.card,.notice,.post,.sub,.meta-row,.order-card){overflow-wrap:anywhere}
+  body[data-shop-page] .card{padding:18px 16px;border-radius:18px}
+  body[data-shop-page] .card h2{font-size:21px;margin-top:0;letter-spacing:-.6px}
+  body[data-shop-page] .page-title{font-size:28px;line-height:1.3}
+  body[data-shop-page] .sub{font-size:14px;line-height:1.75;margin-bottom:20px}
+  body[data-shop-page] header .nav{height:auto;min-height:60px;padding:10px 0;gap:8px 12px;flex-wrap:wrap}
+  body[data-shop-page] header .logo{font-size:22px;line-height:1.3;white-space:nowrap}
+  body[data-shop-page] header .actions{gap:6px;flex-wrap:wrap}
+  body[data-shop-page] header .btn{padding:8px 10px;font-size:12px}
+  body[data-shop-page] .toast{bottom:calc(84px + var(--mobile-safe));max-width:calc(100vw - 32px);width:max-content;white-space:normal;text-align:center;line-height:1.6;pointer-events:none;z-index:120}
+  .mobile-bottom-nav{position:fixed;inset:auto 0 0;z-index:40;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;height:calc(var(--mobile-nav-height) + var(--mobile-safe));padding:4px max(8px,env(safe-area-inset-right)) var(--mobile-safe) max(8px,env(safe-area-inset-left));background:#fffffff7;border-top:1px solid #dfe7e0;box-shadow:0 -4px 24px #18322609;backdrop-filter:blur(16px)}
+  .mobile-bottom-nav :is(a,button){border:0;background:none;color:#68766c;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;min-width:0;min-height:56px;font-size:10px;font-weight:700;cursor:pointer;border-radius:12px;padding:4px 0}
+  .mobile-bottom-nav [aria-current=page]{color:var(--brand,#2f7d4e);background:#edf6ee}
+  .mobile-bottom-nav .mobile-cart-count{position:absolute;top:1px;left:calc(50% + 7px);padding:1px 5px;border-radius:10px;background:#cb4949;color:#fff;font-size:10px;line-height:16px;min-width:18px;text-align:center}
+  .mobile-menu[open]{display:block;position:fixed;inset:0 0 0 auto;margin:0;border:0;width:min(420px,100%);max-width:100%;height:100dvh;max-height:100dvh;padding:24px 20px calc(24px + var(--mobile-safe));background:#f6f8f4;color:#183226;overflow:auto;overscroll-behavior:contain}
+  .mobile-menu-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+  .mobile-menu-heading h2{font-size:25px;margin:0}
+  .mobile-menu-close{display:grid;place-items:center;width:44px;height:44px;border:1px solid #dfe7e0;background:#fff;border-radius:50%;cursor:pointer}
+  .mobile-menu h3{font-size:13px;color:#6d7c72;font-weight:600;margin:28px 0 10px}
+  .mobile-menu-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mobile-menu-links a{padding:16px 12px;background:white;border:1px solid #dfe7e0;border-radius:13px;font-size:14px;font-weight:700;overflow-wrap:anywhere}
+  .mobile-menu-links a:focus-visible,.mobile-bottom-nav :focus-visible{outline:3px solid #2f7d4e;outline-offset:-3px}
+  body.mobile-menu-open,body.mobile-cart-open{overflow:hidden}
+  body.mobile-editing .mobile-bottom-nav,body.mobile-editing .purchase-actions,body.mobile-editing .checkout-paybar{display:none}
+  body.mobile-cart-open .mobile-bottom-nav{visibility:hidden}
+  /* Homepage: compact header, two product columns and horizontal category chips. */
+  body[data-shop-page=index] main{padding:0}
+  body[data-shop-page=index] .top{font-size:11px;line-height:1.6;padding:7px 16px}
+  body[data-shop-page=index] header .nav{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:0;padding:10px 0 0}
+  body[data-shop-page=index] header .main-nav{grid-column:1/-1;justify-content:flex-start;justify-self:stretch;gap:22px;padding:4px 0 0;scrollbar-width:none;font-size:13px}
+  body[data-shop-page=index] header .main-nav a{min-height:44px}
+  body[data-shop-page=index] header .actions :is(a[href="guest-order.html"],a[href="admin.html"]){display:none}
+  body[data-shop-page=index] header .actions{flex-wrap:nowrap}
+  body[data-shop-page=index] .mark{width:26px;height:26px}
+  body[data-shop-page=index] #cartBtn{min-width:44px}
+  body[data-shop-page=index] .store-chat-entry{display:none}
+  body[data-shop-page=index] .banner-grid{grid-template-columns:minmax(0,1fr);gap:16px}
+  body[data-shop-page=index] .banner-section{padding:24px 0 8px}
+  body[data-shop-page=index] .banner-copy{padding:2px 0}
+  body[data-shop-page=index] .banner-copy :is(h1,h2){font-size:clamp(32px,8vw,46px);letter-spacing:-1.6px;line-height:1.2;margin:10px 0 14px}
+  body[data-shop-page=index] .banner-copy p{font-size:14px;line-height:1.8;margin-bottom:18px}
+  body[data-shop-page=index] .banner-art{aspect-ratio:1.25;border-radius:22px}
+  body[data-shop-page=index] .page-section{padding:28px 0;scroll-margin-top:125px}
+  body[data-shop-page=index] .page-section .head{gap:16px;margin-bottom:18px}
+  body[data-shop-page=index] .head>div{min-width:0;width:100%}
+  body[data-shop-page=index] .head h2{font-size:25px;line-height:1.35;letter-spacing:-.9px}
+  body[data-shop-page=index] .head p{font-size:13px;line-height:1.7}
+  body[data-shop-page=index] .filters{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:3px;scrollbar-width:thin}
+  body[data-shop-page=index] .chip{flex:none;padding:9px 14px;font-size:13px}
+  body[data-shop-page=index] .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  body[data-shop-page=index] .product{border-radius:17px;transform:none}
+  body[data-shop-page=index] .pbody{padding:12px;gap:8px}
+  body[data-shop-page=index] .pbody h3{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+  body[data-shop-page=index] .product .meta{font-size:10px;line-height:1.5}
+  body[data-shop-page=index] .product .desc{font-size:12px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+  body[data-shop-page=index] .product .price{margin-top:auto}
+  body[data-shop-page=index] .product .price strong{font-size:18px}
+  body[data-shop-page=index] .product-actions{grid-template-columns:1fr;gap:6px}
+  body[data-shop-page=index] .product-actions .btn{padding:8px;font-size:12px}
+  body[data-shop-page=index] .text-section-inner{padding:28px 22px}
+  body[data-shop-page=index] footer{padding:30px 0}
+  body[data-shop-page=index] .panel{width:100%;padding:20px 16px calc(20px + var(--mobile-safe));height:100dvh;overscroll-behavior:contain}
+  body[data-shop-page=index] .cart-list{flex:1;min-height:0;align-content:start}
+  body[data-shop-page=index] .cart-item .row{align-items:flex-start;flex-wrap:wrap;overflow-wrap:anywhere}
+  body[data-shop-page=index] .cart-list .qty button{width:44px;height:44px}
+  body[data-shop-page=index] .cart-list .qty span{min-width:30px;text-align:center}
+  body[data-shop-page=index] .total{font-size:18px;flex-shrink:0}
+  /* Detail and checkout keep the original buttons and handlers. */
+  body[data-shop-page=detail],body[data-shop-page=checkout]{padding-bottom:calc(144px + var(--mobile-safe))}
+  body[data-shop-page=detail] main{padding-top:0}
+  body[data-shop-page=detail] .product-top{grid-template-columns:minmax(0,1fr);gap:24px;padding:18px 0 28px}
+  body[data-shop-page=detail] .info h1{font-size:28px;line-height:1.4;margin:10px 0 12px;overflow-wrap:anywhere}
+  body[data-shop-page=detail] .hero-img{border-radius:20px}
+  body[data-shop-page=detail] .hero-img img{object-fit:contain}
+  body[data-shop-page=detail] .meta-row{gap:20px;font-size:13px}
+  body[data-shop-page=detail] .meta-row span{flex-shrink:0}
+  body[data-shop-page=detail] .meta-row b{text-align:right}
+  body[data-shop-page=detail] .qty-row input{width:100px}
+  body[data-shop-page=detail] .action{grid-template-columns:1fr 1fr}
+  .purchase-actions,.checkout-paybar{position:fixed;left:0;right:0;bottom:calc(var(--mobile-nav-height) + var(--mobile-safe));z-index:39;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;background:#fffffff7;border-top:1px solid var(--line);box-shadow:0 -6px 24px #18322608}
+  .purchase-actions .btn{min-height:48px;padding:12px;font-size:14px}
+  body[data-shop-page=detail] .inquiry-box{padding:20px 16px;margin-bottom:20px}
+  body[data-shop-page=detail] .inquiry-box .row{flex-wrap:wrap}
+  body[data-shop-page=detail] .detail-copy{padding:26px 18px;line-height:1.8;overflow-wrap:anywhere}
+  body[data-shop-page=detail] .detail-copy h2{font-size:23px}
+  body[data-shop-page=detail] .toast,body[data-shop-page=checkout] .toast{bottom:calc(158px + var(--mobile-safe))}
+  body[data-shop-page=checkout] .product-line{grid-template-columns:52px minmax(0,1fr);gap:10px}
+  body[data-shop-page=checkout] .product-line img{width:52px;height:52px}
+  body[data-shop-page=checkout] .product-line>div:first-child{grid-row:1/3}
+  body[data-shop-page=checkout] .product-line>b{grid-column:2}
+  body[data-shop-page=checkout] .product-line b{font-size:14px;overflow-wrap:anywhere}
+  body[data-shop-page=checkout] .pay-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-shop-page=checkout] .pay-option{padding:14px 10px;min-height:82px}
+  body[data-shop-page=checkout] .pay-option b{font-size:13px}
+  body[data-shop-page=checkout] .pay-option .muted{font-size:11px;margin-top:6px}
+  body[data-shop-page=checkout] .address-row{grid-template-columns:minmax(0,1fr) auto}
+  body[data-shop-page=checkout] .summary-row{gap:16px;line-height:1.5;font-size:13px}
+  body[data-shop-page=checkout] .summary-row>:last-child{text-align:right;flex-shrink:0}
+  .checkout-paybar{grid-template-columns:minmax(85px,.7fr) minmax(0,1.3fr);align-items:center}
+  .mobile-pay-total{display:grid;gap:3px;min-width:0}
+  .mobile-pay-total small{font-size:11px;color:#6d7c72}
+  .mobile-pay-total strong{font-size:18px;overflow-wrap:anywhere}
+  .checkout-paybar #payBtn{margin:0!important;min-height:48px;font-size:13px;padding:12px 8px}
+  /* Full-width order cards retain every status, amount and existing action. */
+  .mobile-card-table,.mobile-card-table tbody{display:block;width:100%}
+  .mobile-card-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .mobile-card-table tbody tr{display:block;border:1px solid var(--line);border-radius:14px;padding:8px 14px;margin:14px 0}
+  .mobile-card-table td{display:grid;grid-template-columns:70px minmax(0,1fr);gap:12px;padding:10px 0;font-size:13px;overflow-wrap:anywhere}
+  .mobile-card-table td::before{content:attr(data-mobile-label);font-size:12px;color:#6d7c72;font-weight:500}
+  .mobile-card-table td:last-child{border:0;display:block}
+  .mobile-card-table td:last-child::before{display:block;margin-bottom:8px}
+  .mobile-card-table td[colspan]{display:block}
+  .mobile-card-table td[colspan]::before{display:none}
+  body[data-shop-page=mypage] .order-actions{min-width:0}
+  body[data-shop-page] :is(.action-line,.order-actions .action-line){grid-template-columns:minmax(0,1fr) auto}
+  body[data-shop-page=mypage] header .actions a[href="chat.html"]{display:none}
+  body[data-shop-page=return-request] header .actions{width:100%}
+  body[data-shop-page=return-request] .item-row{grid-template-columns:minmax(0,1fr)}
+  body[data-shop-page=return-request] .req{padding:14px}
+  body[data-shop-page] .return-heading h2{font-size:21px}
+  /* Forms and chat fit the keyboard and leave room for bottom navigation. */
+  body[data-shop-page] .modal{padding:12px;align-items:end;overflow:auto}
+  body[data-shop-page] .modal-card{max-height:90dvh;padding:20px 16px;border-radius:20px;overscroll-behavior:contain}
+  body[data-shop-page=board] .follow{flex-wrap:wrap}
+  body[data-shop-page=board] .follow input{min-width:0;width:100%}
+  body[data-shop-page=board] .post .row{flex-wrap:wrap}
+  body[data-shop-page=chat] .member-chat-intro .page-title{font-size:26px}
+  body[data-shop-page=chat] .member-room-tabs button{padding:14px 10px}
+  body[data-shop-page=chat] .member-room-tabs strong{font-size:13px}
+  body[data-shop-page=chat] .member-chat-layout .chat-heading{padding:16px}
+  body[data-shop-page=chat] .member-chat-layout .chat-log{height:46vh;height:46dvh;min-height:200px;max-height:440px;padding:14px}
+  body[data-shop-page=chat] .member-chat-layout .chat-compose{padding:12px;flex-wrap:nowrap;gap:8px}
+  body[data-shop-page=chat] .member-chat-layout .chat-compose label{flex:1;min-width:0}
+  body[data-shop-page=chat] .chat-compose textarea{min-height:60px}
+  body[data-shop-page=chat] .chat-compose button{min-height:48px}
+  body[data-shop-page=chat] .chat-message{max-width:92%}
+  body[data-shop-page=chat] .chat-error{overflow-wrap:anywhere}
+}
+@media(max-width:360px){
+  body[data-shop-page] .wrap,body[data-shop-page] .container{width:calc(100% - 24px)}
+  body[data-shop-page=index] .logo{gap:6px;font-size:20px}
+  body[data-shop-page=index] .pbody{padding:10px}
+  body[data-shop-page=index] .grid{gap:9px}
+  body[data-shop-page] :is(.action-line,.order-actions .action-line){grid-template-columns:minmax(0,1fr)}
+  body[data-shop-page=checkout] .address-row{grid-template-columns:minmax(0,1fr)}
+}
