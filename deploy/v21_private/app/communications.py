@@ -76,6 +76,7 @@ def serialize(row, kind, viewer, is_private):
         'status': row.status, 'createdAt': row.created_at.isoformat(),
         'isPrivate': bool(is_private), 'canRead': readable,
         'canFollowup': bool(viewer and readable),
+        'canMakePrivate': kind == 'board' and not is_private and owns_thread(row, viewer),
     }
     if kind == 'board':
         out['category'] = row.category if readable or row.category in {'일반문의', '배송문의', '상품후기', '기타'} else '기타'
@@ -108,6 +109,20 @@ def board_create(data: BoardIn, request: Request, db: Session = Depends(get_db))
     save_privacy(db, 'board', row, data.isPrivate)
     db.commit()
     return {'ok': True, 'id': row.id, 'isPrivate': data.isPrivate}
+
+
+@router.post('/api/board/{post_id}/private')
+def board_make_private(post_id: str, request: Request, db: Session = Depends(get_db)):
+    require_csrf(request, db)
+    viewer = current_user(request, db, True)
+    row = db.get(BoardPost, post_id)
+    if not row:
+        raise HTTPException(404, '게시글을 찾을 수 없습니다.')
+    if not owns_thread(row, viewer):
+        raise HTTPException(403, '작성자와 관리자만 비밀글로 변경할 수 있습니다.')
+    db.merge(CommunicationPrivacy(kind='board', item_id=row.id, is_private=True))
+    db.commit()
+    return {'ok': True, 'id': row.id, 'isPrivate': True}
 
 
 @router.get('/api/inquiries')

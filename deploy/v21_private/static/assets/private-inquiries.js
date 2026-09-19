@@ -12,6 +12,9 @@
       if (kind === 'board' && row.canFollowup) {
         body += `<div class="follow"><input id="f-${esc(row.id)}" placeholder="추가 문의" aria-label="추가 문의"><button class="btn ghost" data-follow-id="${esc(row.id)}">등록</button></div>`;
       }
+      if (kind === 'board' && row.canMakePrivate) {
+        body += `<button class="btn ghost small privacy-convert" type="button" data-private-id="${esc(row.id)}">🔒 비밀글로 변경</button>`;
+      }
     }
     return `<article class="${kind === 'board' ? 'post' : 'card'}"><div class="row"><div><b>${badge}${category}${esc(title)}</b><div class="muted">${esc(readable ? row.author : '비공개')} · ${esc(new Date(row.createdAt).toLocaleString())}</div></div><span class="badge ${row.status === '답변완료' ? '' : 'warn'}">${esc(row.status)}</span></div>${body}</article>`;
   }

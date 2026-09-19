@@ -4,7 +4,7 @@ from shutil import copyfile
 
 source = Path(__file__).resolve().parent / 'v21_operations'
 for relative in ('app/sales.py','app/chat.py','static/chat.html','static/assets/chat.js',
-                 'static/assets/admin-operations.js','static/assets/operations.css'):
+                 'static/assets/admin-operations.js','static/assets/operations.css','static/assets/store-chat-entry.css'):
     destination = Path(relative)
     destination.parent.mkdir(parents=True,exist_ok=True)
     copyfile(source / relative,destination)
@@ -25,4 +25,10 @@ replace('static/admin.html','</body>','<script src="assets/chat.js"></script><sc
 for page in ('static/mypage.html','static/board.html'):
     replace(page,'<a class="btn ghost" href="index.html">쇼핑몰</a>',
             '<a class="btn ghost" href="index.html">쇼핑몰</a><a class="btn ghost" href="chat.html">실시간 대화방</a>')
+replace('static/index.html','</head>','<link rel="stylesheet" href="assets/store-chat-entry.css?v=21-entry-2"></head>')
+replace('static/index.html','</body>','''<a class="store-chat-entry" href="chat.html" aria-label="실시간 대화방">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9.5 9.5 0 0 1-4-.9L3 21l1.9-5.5a9.5 9.5 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3H13a8.5 8.5 0 0 1 8 8v.5Z"/><path d="M8 11h9M8 14h6"/></svg><span>실시간 대화방<small>전체 대화 · 1:1 상담</small></span></a></body>''')
+# HTML must revalidate after deployment, including existing visitors' board pages.
+replace('app/main.py','return FileResponse(STATIC/name)', 'return FileResponse(STATIC/name,headers={"Cache-Control":"no-cache"})')
+replace('app/main.py','return FileResponse(file)', 'return FileResponse(file,headers={"Cache-Control":"no-cache"} if file.suffix==".html" else {})')
 print('V21 sales management and shared/private realtime chat applied')

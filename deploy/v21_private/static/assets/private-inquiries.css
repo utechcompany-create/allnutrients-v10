@@ -5,3 +5,9 @@
 .privacy-locked { padding: 14px; color: var(--muted); background: #f6f7f6; border-radius: 10px; }
 .privacy-content, .privacy-message p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .privacy-message { background: #eef6ef; border-radius: 12px; padding: 12px; margin: 7px 0; }
+.privacy-help { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 20px; border:1px solid #c9dfcc; background:#eff8f0; border-radius:14px; margin-bottom:18px; }
+.privacy-help p { margin:5px 0 0; color:var(--muted); font-size:13px; line-height:1.6; }
+.privacy-help button { flex-shrink:0; }
+.privacy-state { margin:0; font-size:13px; line-height:1.6; color:#47674e; }
+.privacy-convert { margin-top:10px; }
+@media(max-width:560px){.privacy-help{align-items:stretch;flex-direction:column}.privacy-help button{width:100%}}

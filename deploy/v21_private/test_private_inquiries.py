@@ -110,10 +110,43 @@ with patch('app.communications.privacy_flags',side_effect=RuntimeError('syntheti
 with SessionLocal() as db:
     assert len(db.scalars(select(CommunicationPrivacy)).all()) == 2
 
+# Existing public questions can be made private by their author or an admin.
+created=owner.post('/api/board',headers=headers(owner),json={'category':'일반문의','title':'CONVERT_TITLE','content':'CONVERT_BODY'}).json()
+converted_id=created['id'];conversion='/api/board/'+converted_id+'/private'
+assert listing(owner,'board')[converted_id]['canMakePrivate']
+assert listing(admin,'board')[converted_id]['canMakePrivate']
+assert not listing(other,'board')[converted_id]['canMakePrivate']
+assert not listing(anonymous,'board')[converted_id]['canMakePrivate']
+assert other.post('/api/board/'+converted_id+'/followup',headers=headers(other),json={'content':'CONVERT_REPLY'}).status_code==200
+assert anonymous.post(conversion).status_code==401
+assert owner.post(conversion).status_code==403
+assert other.post(conversion,headers=headers(other)).status_code==403
+assert not listing(owner,'board')[converted_id]['isPrivate']
+for _ in range(2):
+    assert owner.post(conversion,headers=headers(owner)).json()['isPrivate'] is True
+for client in (owner,admin):
+    item=listing(client,'board')[converted_id]
+    assert item['isPrivate'] and not item['canMakePrivate']
+    assert item['content']=='CONVERT_BODY' and item['messages'][0]['content']=='CONVERT_REPLY'
+for client in (other,anonymous):
+    item=listing(client,'board')[converted_id]
+    assert item['isPrivate'] and not item['canRead'] and 'CONVERT_' not in str(item)
+assert admin.post('/api/board/legacy-board/private',headers=headers(admin)).status_code==200
+assert not listing(anonymous,'board')['legacy-board']['canRead']
+assert listing(admin,'board')['legacy-board']['content']=='보존할 기존 내용'
+assert owner.post('/api/board/not-found/private',headers=headers(owner)).status_code==404
+
 for path in ('/board.html','/detail.html'):
-    html=anonymous.get(path).text
+    response=anonymous.get(path);html=response.text
+    assert response.headers['cache-control']=='no-cache'
     assert 'type="checkbox" name="isPrivate"' in html and 'assets/private-inquiries.js' in html
+board=anonymous.get('/board.html').text
+assert 'id="privateWriteBtn"' in board and 'id="privacyState"' in board
+assert board.index('name="isPrivate"')<board.index('name="category"')
+home=anonymous.get('/');assert home.headers['cache-control']=='no-cache'
+assert 'class="store-chat-entry" href="chat.html"' in home.text
+assert anonymous.get('/assets/store-chat-entry.css').status_code==200
 assert '🔒 비밀글' in admin.get('/admin.html').text
 engine.dispose()
 temp.cleanup()
-print('PASS: private board/product questions, owner/admin/other/guest permissions, hidden titles/content/replies, followup protection, logout, cache headers, atomic writes, legacy data and additive startup')
+print('PASS: private questions and conversion, author/admin permissions, hidden titles/content/replies, CSRF, legacy preservation, page revalidation and storefront chat entry')
