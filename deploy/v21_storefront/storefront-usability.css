@@ -1,0 +1,11 @@
+#accountLink{white-space:nowrap}
+.auth-entry-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}
+.auth-section{scroll-margin-top:100px}
+.auth-hint{font-size:12px;color:var(--muted);font-weight:400;line-height:1.6}
+.form-error{margin:4px 0 0;padding:12px;border:1px solid #e7b5b5;border-radius:10px;background:#fff4f4;color:#982f2f;line-height:1.6;overflow-wrap:anywhere}
+.checkout-member-entry{margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.checkout-member-entry p{margin:0;flex:1;min-width:180px;line-height:1.7}
+.pay-option:disabled,.btn:disabled{opacity:.55;cursor:not-allowed}
+.auth-entry-actions .btn:focus-visible,.auth-section input:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+@media(max-width:760px){.auth-entry-actions .btn{flex:1;text-align:center}.auth-section{scroll-margin-top:85px}.checkout-member-entry{align-items:stretch}.checkout-member-entry .btn{text-align:center;width:100%}}
+@media(max-width:360px){body[data-shop-page=index] #accountLink{padding:8px;font-size:11px}}
